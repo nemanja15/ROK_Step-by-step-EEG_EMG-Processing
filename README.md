@@ -26,9 +26,9 @@ TrialNumbers = [TrialNumbersIso TrialNumbersCyc];
 SDCardData = Step1LoadSDCardData(DataDirectory, TrialNumbers);
 ```
 **Load** the SS data. The trial numbers for this subject will be the same as above (see spreadsheet). The output should be a 1 x 13 cell. The dimensions of each element of the cell are NumberOfChannels (3) x NumberOfTimePoints. There are 3 auxiliary input channels of interest: (1) Delsys trigger input, (2) SyncStation pulse signal and (3) Force signal.
-``
+```
 SSData = Step1LoadSSData(DataDirectory, TrialNumbers);
-``
+```
 
 **Load** the Delsys data. For the trial numbers, we want to use the end numbers in the Delsys file (e.g. if 1_10.csv, we want 10). For this subject, the end numbers of interest are simply TrialNumbers-1. Delsys CSV files contains many useless column variables (e.g. a time vector that is the same for all Avanti sensors). We only care about some pre-defined 'Useful Variables', so we selece these. The output cell DelsysData consists of the sensor data (row 1), the sensor names (row 2) and sampling frequencies (row 3). Each column of DelsysData is a task.
 ```
