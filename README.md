@@ -1,4 +1,8 @@
 # Rewritten-FDA-Code
+This repo consists of a top-level .mlx file for each subject.
+The subject .mlx file will generate the required connectivity results for that subject.
+The following is an example of a MATLAB .mlx file for a particular subject (FDA013).
+All subjects' .mlx files contain such explanations and clarifications.
 ```
 % Written by Rory O'Keeffe on 07/19/22 @ MERIIT Lab, ECE Dept, NYU Tandon.
 ```
