@@ -1,17 +1,21 @@
 # Rewritten-FDA-Code
+```
 % Written by Rory O'Keeffe on 07/19/22 @ MERIIT Lab, ECE Dept, NYU Tandon.
-Pre-Xmas Data Processing Pipeline for FDA 
+```
+**Pre-Xmas Data Processing Pipeline for FDA**
 Step 1: Loading Raw Data 
 Insert the raw data directory below. 
 ```
 clear all;
 DataDirectory = 'D:\OneDrive\Documents\GitHub\EEG\FDA Data\FDA014';
 ```
-Specify the file trial numbers in the correct order. The order of isometric trials should be 20%, 0.5s, 20%, 1s, ...60%, 3s. Check the isometric trial numbers carefully as they are randomized. The order of the cycling trials will be 0 turns, 1.5 turns, 3 turns,  4.5 turns, 6 turns. These are not randomized so numbers are sequential. The trial numbers for each subject are available here. 
+Specify the **file trial numbers** in the correct order. The order of isometric trials should be 20%, 0.5s, 20%, 1s, ...60%, 3s. Check the isometric trial numbers carefully as they are randomized. The order of the cycling trials will be 0 turns, 1.5 turns, 3 turns,  4.5 turns, 6 turns. These are not randomized so numbers are sequential. The trial numbers for each subject are available at the Google Spreadsheet below:
+https://docs.google.com/spreadsheets/d/1WKzZdX0CGqx-LiZJC8p2msoUgvE--3WIlVS5Bx37PbU/edit#gid=594835701
+```
 TrialNumbersIso = [6 7 5 8 4 3 2]; 
 TrialNumbersCyc = [9:12 14];
 TrialNumbers = [TrialNumbersIso TrialNumbersCyc];
-
+```
 Load the SD card data using the Step1 function with the data directory and trial numbers as inputs. The output should be a 2 x 13 cell. The dimensions of each element of the cell are NumberOfChannels (68) x NumberOfTimePoints. The first 64 are the channel signals and the last 4 are some auxiliary channels.
 SDCardData = Step1LoadSDCardData(DataDirectory, TrialNumbers);
 Load the SS data. The trial numbers for this subject will be the same as above (see here). The output should be a 1 x 13 cell. The dimensions of each element of the cell are NumberOfChannels (3) x NumberOfTimePoints. There are 3 auxiliary input channels of interest: (1) Delsys trigger input, (2) SyncStation pulse signal and (3) Force signal.
