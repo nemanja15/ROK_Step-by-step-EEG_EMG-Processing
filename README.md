@@ -17,19 +17,28 @@ TrialNumbersIso = [6 7 5 8 4 3 2];
 TrialNumbersCyc = [9:12 14];
 TrialNumbers = [TrialNumbersIso TrialNumbersCyc];
 ```
-Load the SD card data using the Step1 function with the data directory and trial numbers as inputs. The output should be a 2 x 13 cell. The dimensions of each element of the cell are NumberOfChannels (68) x NumberOfTimePoints. The first 64 are the channel signals and the last 4 are some auxiliary channels.
+**Load** the SD card data using the Step1 function with the data directory and trial numbers as inputs. The output should be a 2 x 13 cell. The dimensions of each element of the cell are NumberOfChannels (68) x NumberOfTimePoints. The first 64 are the channel signals and the last 4 are some auxiliary channels.
+```
 SDCardData = Step1LoadSDCardData(DataDirectory, TrialNumbers);
-Load the SS data. The trial numbers for this subject will be the same as above (see here). The output should be a 1 x 13 cell. The dimensions of each element of the cell are NumberOfChannels (3) x NumberOfTimePoints. There are 3 auxiliary input channels of interest: (1) Delsys trigger input, (2) SyncStation pulse signal and (3) Force signal.
+```
+**Load** the SS data. The trial numbers for this subject will be the same as above (see spreadsheet). The output should be a 1 x 13 cell. The dimensions of each element of the cell are NumberOfChannels (3) x NumberOfTimePoints. There are 3 auxiliary input channels of interest: (1) Delsys trigger input, (2) SyncStation pulse signal and (3) Force signal.
+``
 SSData = Step1LoadSSData(DataDirectory, TrialNumbers);
+``
 
-Load the Delsys data. For the trial numbers, we want to use the end numbers in the Delsys file (e.g. if 1_10.csv, we want 10). For this subject, the end numbers of interest are simply TrialNumbers-1. Delsys CSV files contains many useless column variables (e.g. a time vector that is the same for all Avanti sensors). We only care about some pre-defined 'Useful Variables', so we selece these. The output cell DelsysData consists of the sensor data (row 1), the sensor names (row 2) and sampling frequencies (row 3). Each column of DelsysData is a task.
+**Load** the Delsys data. For the trial numbers, we want to use the end numbers in the Delsys file (e.g. if 1_10.csv, we want 10). For this subject, the end numbers of interest are simply TrialNumbers-1. Delsys CSV files contains many useless column variables (e.g. a time vector that is the same for all Avanti sensors). We only care about some pre-defined 'Useful Variables', so we selece these. The output cell DelsysData consists of the sensor data (row 1), the sensor names (row 2) and sampling frequencies (row 3). Each column of DelsysData is a task.
+```
 TrialNumbersD = TrialNumbers-1; TrialNumbersD(8:12) = [10:13 15];
 load('Useful Column Variables.mat')
 DelsysData = Step1LoadDelsysData1(DataDirectory,TrialNumbersD, UsefulVariables);
+```
 
-Step 2: Synchronizing Data
+**Step 2: Synchronizing Data**
+
 Sync the OTB data. The difference between the Sync Se and the SyncStation pulses is used to align the SD card data signals (EEG and EMG) with SyncStation data signals (Force). The output SyncedOTBData contains the synced SD card and force signals.
+```
 [SyncedOTBData, AlignmentPoints] = Step2SynchronizeOTBData(SDCardData, SSData);
+```
 
 Sync the Delsys Data with OTB data using the Delsys trigger. The output AllSyncedData contains the synced elements of SyncedOTBData and Delsys signals (four modalities, EEG. HD-EMG, force and Delsys {EMG, IMU, gonios}).
 subject = 14;
