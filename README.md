@@ -3,7 +3,8 @@
 % Written by Rory O'Keeffe on 07/19/22 @ MERIIT Lab, ECE Dept, NYU Tandon.
 ```
 **Pre-Xmas Data Processing Pipeline for FDA**
-\n Step 1: Loading Raw Data 
+
+Step 1: Loading Raw Data 
 Insert the raw data directory below. 
 ```
 clear all;
