@@ -51,29 +51,35 @@ close all;
 
 Step 3: Resampling Data
 Resample all the data to a common sampling frequency. Here we choose fs_EEG (500 Hz) as the common sampling frequency. 
+```
 fs_EEG = 500; fs_HDEMG = 2000; 
 All_OTB_fs = [fs_EEG fs_HDEMG fs_HDEMG]; fs_common = fs_EEG;
 ResampledData = Step3ResampleData(AllSyncedData, fs_common, All_OTB_fs);
-
+```
 Step 4: Band-Filtering Data
 Filter all signals into a common frequency range. This feature can be adjusted later, to have different ranges for different modalities. For now, since we are focusing on corticomuscular connectivity, EEG and EMG can have the same band-filtering. 
+```
 BandOfInterest = [0.5 10];
 FilteredData = Step4FilterData(ResampledData, BandOfInterest, fs_common);
-
+```
 Step 5: Epoch Data
 For isometric tasks, use the force signals to epoch. For cycling tasks, use the Delsys signals (goniometer). The processing will be different depending on whether we are using force signal or goniometer to epoch, so the task indexes are needed as input.
+```
 ForceTaskIdx = 1:7; OtherTaskIdx = 8:12;
 EpochedData = Step5EpochData(FilteredData, ForceTaskIdx, OtherTaskIdx, fs_common);
+```
 Step 6: Laplacian Spatial Filtering
 Apply Laplacian spatial filtering to the EEG. The processing will be different depending on if we are using force signal or goniometer to epoch, so the task indexes are needed. The locations of all electrodes are needed for the Laplacian spatial filtering. The configuration of the Laplacian filtering applied to the current electrode will depend on the current electrode and available surroudning electrodes. There are three possible configurations: +, L, or T. 
+```
 LapData = Step6LapFilterData(EpochedData, ForceTaskIdx, OtherTaskIdx, Locations);
 LapData = EpochedData;
+```
 
 Step 7: Prepare for Connectivity Calculations
 HD-EMG can be averaged across channels. We can choose to compute the median across four regions such that the channels dimension is reduced from 64 to 4 (commented out below). Or we can simply choose to compute one median across all 64 channels such that the channels dimension is reduced to 1.
 Choose modalities for the connectivity calculation. For now, we choose EEG and HD-EMG (modalities 1 and 2).
 Choose the desired EEG channels. For now, we choose all 64 EEG channels.
-
+```
 HDEMGChannelReductionMethod = 'AllToOne'; 
 ModalitiesIdx = [1 2];
 EEGChannelIdx = 1:64;
@@ -82,21 +88,25 @@ PreparedData = Step7PrepareForConnectivity(LapData, ForceTaskIdx, OtherTaskIdx, 
 % HDEMGChannelReductionMethod = 'AllToFour'; 
 % load('RegionIdxs.mat')
 % PreparedData = Step7PrepareForConnectivity(LapData, ForceTaskIdx, OtherTaskIdx, ModalitiesIdx, EEGChannelIdx, HDEMGChannelReductionMethod, RegionIdxs);
-
+```
 Step 8: Compute Connectivity
 Compute the desired method of connectivity (coherence, power correlation, mutual information). 
 For computing the connectivity for isometric tasks, it makes more sense to consider a window of (+/-T)s rather than the default window duration (-3,4)s, particularly when the task duration (T) is short. 
 The ConnectivityOptions matrix sets the modalities between which we want to compute connectivity. For CMC {EEG (1) with HD-EMG(2)}, we set ConnectivityOptions = [1 2]. If we want to add intra-cortical connectivity, we will add another row as follows: ConnectivityOptions = [1 2; 1 1]. If we want to have just EEG-Delsys connectivity, ConnectivityOptions = [1 3]. Each connectivity modality will be stored in a separate cell in the output. For now, we just want CMC with HD-EMG so ConnectivityOptions = [1 2].
 The output AllCoherences has 3 layers of cells. The first layer separates the connectivity modalties with dimensions size(ConnectivityOptions,1) x 1. The second layer has dimensions of NClasses x NChannels1 x NChannels2, where NClasses is the number of force task classes (here = 8) and NChannelsX is the number of channels in ModalityX (here NChannels1 = 64 and NChannels2 = 1). The third layer has dimensions of NEpochs x 2 (we consider connectivity before AND after movement, -T and +T). Each element of the third layer is a coherence vector of length NFrequencyComponents. 
+```
 % IsometricMode = 'FullWindow';
 IsometricMode = 'PlusMinusT';
 ConnectivityOptions = [1 2];
 ForceTaskDurations = [0.5 1 2 3 0.5 1 3];
 ForceTaskClasses = [1:6 8];
 AllCoherences = Step8ComputeCoherence(PreparedData, ConnectivityOptions, ForceTaskIdx, ForceTaskClasses, OtherTaskIdx, IsometricMode, fs_common);
+```
 Step 9: Plot Results
 Plot the results:
 Plot isometric task (1:8) results for CMC.
+```
 CMC = AllCoherences{1};
 Step9PlotConnectivity(CMC(1:8, :, :));
-The code has been pushed to Github.
+```
+
