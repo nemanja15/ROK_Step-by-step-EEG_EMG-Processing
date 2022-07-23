@@ -1,0 +1,29 @@
+function HMAllClassesReduced_SubPlots(AllClassesR, ElectrodesIn, ChosenElectrodesOut, ChosenLocs, p, n_phases, MinMaxH)
+
+
+load('Mat Files\ReOrderedLocsFDA.mat');
+AllElectrodes = ElectrodesIn;
+ElectrodeLocs = AllElectrodes(1:length(ChosenElectrodesOut));
+ElectrodeIndices = [];
+for w=1:length(ElectrodeLocs)
+    ElectrodeNow = ChosenElectrodesOut{w};
+   ElectrodeIndices(w) = find(strcmp(ElectrodeNow, AllElectrodes));  
+end
+SortedIndices = sort(ElectrodeIndices, 'ascend'); 
+for s=1:length(SortedIndices)
+    ElectrodeLocs(s) = AllElectrodes(SortedIndices(s));
+end
+for e=1:length(ElectrodeLocs)
+             ElectrodeNow = ElectrodeLocs{e};
+             ChosenIndices(e) = find(strcmp(ElectrodeNow, AllElectrodes));
+end
+
+n_classes = 4;
+hold on;
+subplot = @(m,n,p) subtightplot (m, n, p, [0.02 0.02], [0.02 0.1], [0.02 0.1]);
+for c = 1:n_classes
+subplot(n_rows, n_classes, ((sub_row-1)*(n_classes)+c));
+FCGraph1WayC_MaxReduced_1Color_SubplotNSF([], AllClasses(:,:,c), TopX, ConfigsOut, ChosenElectrodesOut,  ConfigsIn, ChosenElectrodesIn, MinAllL, MaxAllL, LineColor, Text, Lines);
+FCHeatMap1WayC_MaxReduced_BlankMac(AllClasses(:,:,c),  ConfigsOut, ChosenElectrodesOut,  ConfigsIn, ChosenElectrodesIn, MinAllH, MaxAllH, ConnectedElectrode, ChosenLocs);
+end
+end

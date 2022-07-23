@@ -1,0 +1,115 @@
+function TopoPlotR(Values2, ElectrodeLocs, MinMax)
+MinIn = MinMax(1); MaxIn = MinMax(2);
+n_electrodes_out = length(ElectrodeLocs);
+pbaspect([1 1 1]);
+hold on;
+xlim([-0.7 0.7]);
+ylim([-0.7 0.8]);
+xlabel('x', 'FontWeight', 'bold');
+ylabel('y', 'FontWeight', 'bold');
+set(gca, 'FontSize', 24);
+
+X = [];
+Y = [];
+for L = 1:length(ElectrodeLocs)
+    X(L) = ElectrodeLocs(L).X;
+    Y(L) = ElectrodeLocs(L).Y;
+end
+% 2. Draw Heat Map
+rmax = 0.6;
+xmin = min(-rmax,min(X)); xmax = max(rmax,max(X));
+ymin = min(-rmax,min(Y)); ymax = max(rmax,max(Y));
+N_inter = 100;
+xi = linspace(xmin,xmax,N_inter);   % x-axis description (row vector)
+yi = linspace(ymin,ymax,N_inter);   % y-axis description (row vector)
+Values2A = Values2-MinIn;
+MaxValues = MaxIn-MinIn;
+Values2B = Values2A/MaxValues;
+[Xi,Yi,ZiC] = griddata(X,Y,double(Values2B),xi,yi','v4'); % interpolate data
+ZiC(ZiC<0) = 0;
+mask = (sqrt(Xi.^2 + Yi.^2) <= rmax); % mask outside the plotting circle
+ii = find(mask == 0);
+ZiC(ii) = NaN;   
+delta_x = xi(2)-xi(1);
+delta_y = yi(2)-yi(1);
+SHADING = 'flat';
+alpha = 0.5;
+% Heat map code; surface(x,y,z,C), where C is the Color value set by
+% the input FC values. z is just a zeros vector. 
+tmph = surface(Xi-delta_x/2,Yi-delta_y/2,zeros(size(ZiC))-0.1,ZiC,'EdgeColor','none','FaceColor',SHADING, 'FaceAlpha', alpha);  
+caxis([0 1])
+colormap(jet)
+% hcb = colorbar('Ticks', (0:0.1:1));
+% Title = [ConnectedElectrode ' Connectivity'];
+% title(hcb,Title);
+
+% surface(Xi-delta_x/2,Yi-delta_y/2,ZiC,'EdgeColor','none','FaceColor',SHADING, 'FaceAlpha', alpha)
+% surface(Xi-delta_x/2,Yi-delta_y/2,ZiC)
+
+cD = tmph.CData;
+tmph.CDataMapping = 'scaled';
+hold on
+% contours
+CONTOURNUM = 6;
+% [cls chs] = contour(Xi,Yi,ZiC,CONTOURNUM, 'color', 'k', 'ShowText','off'); 
+% head outline
+HEADRINGWIDTH = 0.007;
+hwidth = HEADRINGWIDTH;                   % width of head ring 
+headrad = rmax;
+squeezefac = 1.0;
+hin  = squeezefac*headrad*(1- hwidth/2);  % inner head ring radius
+CIRCGRID = 201;
+circ = linspace(0,2*pi,CIRCGRID);
+rx = sin(circ); 
+ry = cos(circ); 
+rwidth = 0.035;
+rin    =  rmax*(1-rwidth/2);
+ringx = [[rx(:)' rx(1) ]*(rin+rwidth)  [rx(:)' rx(1)]*rin];
+ringy = [[ry(:)' ry(1) ]*(rin+rwidth)  [ry(:)' ry(1)]*rin];
+BACKCOLOR = [0.9300    0.9600    1.0000];
+HEADCOLOR = [0 0 0];    % default head color (black)
+HLINEWIDTH = 2;  
+patch(ringx,ringy,0.01*ones(size(ringx)),BACKCOLOR,'edgecolor','none'); hold on
+headx = [rx(:)' rx(1)]*hin;
+heady = [ry(:)' ry(1)]*hin;
+ringh= plot(headx,heady);
+set(ringh, 'color',HEADCOLOR,'linewidth', HLINEWIDTH); hold on
+% nose and ears
+base  = rmax-.0046;
+basex = 0.18*rmax;                   % nose width
+tip   = 1.15*rmax; 
+tiphw = .04*rmax;                    % nose tip half width
+tipr  = .01*rmax;                    % nose tip rounding
+q = .04; % ear lengthening
+EarX  = 0.1+[.497-.005  .510  .518  .5299 .5419  .54    .547   .532   .510   .489-.005]; % rmax = 0.5
+EarY  = [q+.0555 q+.0775 q+.0783 q+.0746 q+.0555 -.0055 -.0932 -.1313 -.1384 -.1199];
+
+ plotrad = min(1.0,0.6*1.02);            % default: just outside the outermost electrode location
+ plotrad = max(plotrad,0.5); 
+sf    = headrad/plotrad;   
+plot3([basex;tiphw;0;-tiphw;-basex]*sf,[base;tip-tipr;tip;tip-tipr;base]*sf,...
+2*ones(size([basex;tiphw;0;-tiphw;-basex])),'Color',HEADCOLOR,'LineWidth',HLINEWIDTH);                 % plot nose
+plot3(EarX*sf,EarY*sf,2*ones(size(EarX)),'color',HEADCOLOR,'LineWidth',HLINEWIDTH)    % plot left ear
+plot3(-EarX*sf,EarY*sf,2*ones(size(EarY)),'color',HEADCOLOR,'LineWidth',HLINEWIDTH)   % plot right ear
+   % Makes figure more Circular and zoom fitted 
+%
+rmax = 0.6;
+plotax = gca;
+ axis square                                           % make plotax square
+ axis off                                                   % will work inside head cartoon patch
+ axis square                                           % make textax square
+ pos = get(gca,'position');
+ set(plotax,'position',pos);
+ xlm = get(gca,'xlim');
+ set(plotax,'xlim',xlm);
+ ylm = get(gca,'ylim');
+ set(plotax,'ylim',ylm);                               % copy position and axis limits again
+axis equal;
+lim = [-(rmax+0.05) (rmax+0.05)];
+%lim = [-0.56 0.56];
+set(gca, 'xlim', lim); set(plotax, 'xlim', lim);
+set(gca, 'ylim', lim); set(plotax, 'ylim', lim);
+set(gca, 'xlim', lim); set(plotax, 'xlim', lim);
+set(gca, 'ylim', lim); set(plotax, 'ylim', lim);
+%Add color bar
+end
