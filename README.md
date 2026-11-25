@@ -6,7 +6,7 @@ All subjects' .mlx files contain such explanations and clarifications.
 ```
 % Written by Rory O'Keeffe on 07/19/22 @ MERIIT Lab, ECE Dept, NYU Tandon.
 ```
-**Pre-Xmas Data Processing Pipeline for EEG-EMG**
+**Data Processing Pipeline for EEG-EMG**
 
 Step 1: Loading Raw Data 
 Insert the raw data directory below. 
