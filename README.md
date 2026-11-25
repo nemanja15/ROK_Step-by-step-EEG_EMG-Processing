@@ -1,4 +1,4 @@
-# Rewritten-FDA-Code
+# Rewritten-EEG_EMG-Code
 This repo consists of a top-level .mlx file for each subject.
 The subject .mlx file will generate the required connectivity results for that subject.
 The following is an example of a MATLAB .mlx file for a particular subject (FDA013).
